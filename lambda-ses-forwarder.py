@@ -79,7 +79,7 @@ def create_message(file_dict):
     body_text = ("The message below was received from "
                  + separator.join(mail_object.get_all('From'))
                  + ". The message ID is " + file_dict['messageId']
-                 + "<br><br>----- Forwarded Message -----<br>"
+                 + ".<br><br>----- Forwarded Message -----<br>"
                  + "From: " +
                  separator.join(mail_object.get_all('From')) + "<br>"
                  + "Date: " + sent_date + "<br>"
