@@ -51,7 +51,8 @@ def get_message_from_s3(message_id):
 
     file_dict = {
         "file": file,
-        "path": object_http_path
+        "path": object_http_path,
+        "messageId": message_id
     }
 
     return file_dict
@@ -75,9 +76,9 @@ def create_message(file_dict):
     subject = "FW: " + subject_original
 
     # The body text of the email.
-    body_text = ("The attached message was received from "
+    body_text = ("The message below was received from "
                  + separator.join(mail_object.get_all('From'))
-                 + ". This message is archived at " + file_dict['path']
+                 + ". The message ID is " + file_dict['messageId']
                  + "<br><br>----- Forwarded Message -----<br>"
                  + "From: " +
                  separator.join(mail_object.get_all('From')) + "<br>"
