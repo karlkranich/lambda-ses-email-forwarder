@@ -11,6 +11,6 @@ All of the setup instructions on that page still apply except for the way that r
 
 ## Changelog
 
-1/30/2022 - The function now takes an environment variable called MailAddressMap that should contain a string representing a json list of From: and To: email addresses. For example: '[{"From":"address@example.com","To":"newaddress@gmail.com"},{"From":"address2@example.com","To":"newaddress2@gmail.com"}]'
+1/30/2022 - The function now takes an environment variable called MailAddressMap that should contain a string representing a json list of From: and To: email addresses. For example: '[{"from":"address@example.com","to":"newaddress@gmail.com"},{"from":"address2@example.com","to":"newaddress2@gmail.com"}]'
 
 The environment variable MailRecipient is no longer used.
