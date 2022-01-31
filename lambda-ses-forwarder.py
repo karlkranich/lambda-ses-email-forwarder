@@ -16,6 +16,7 @@
 
 import os
 import boto3
+import json
 import email
 import re
 from botocore.exceptions import ClientError
@@ -58,10 +59,23 @@ def get_message_from_s3(message_id):
     return file_dict
 
 
-def create_message(file_dict):
+def create_recipient_list(destinations):
+    # Given a list of "To:" addresses from the original email,
+    # return a new list of "To:" addresses to forward the email
+
+    final_destinations = []
+    address_map_list = json.loads(os.environ['MailAddressMap'])
+
+    for tuple in address_map_list:
+        if (tuple["from"] in destinations):
+            final_destinations.append(tuple["to"])
+
+    return(final_destinations)
+
+
+def create_message(file_dict, recipients):
 
     sender = os.environ['MailSender']
-    recipient = os.environ['MailRecipient']
 
     separator = ";"
 
@@ -99,14 +113,14 @@ def create_message(file_dict):
     # Add subject, from and to lines.
     msg['Subject'] = subject
     msg['From'] = sender
-    msg['To'] = recipient
+    msg['To'] = ", ".join(recipients)
 
     # Attach the original email to the message.
     msg.attach(mail_object)
 
     message = {
         "Source": sender,
-        "Destinations": recipient,
+        "Destinations": recipients,
         "Data": msg.as_string()
     }
 
@@ -124,9 +138,7 @@ def send_email(message):
         # Provide the contents of the email.
         response = client_ses.send_raw_email(
             Source=message['Source'],
-            Destinations=[
-                message['Destinations']
-            ],
+            Destinations=message['Destinations'],
             RawMessage={
                 'Data': message['Data']
             }
@@ -150,8 +162,13 @@ def lambda_handler(event, context):
     # Retrieve the file from the S3 bucket.
     file_dict = get_message_from_s3(message_id)
 
+    # Create the new recipient list
+    new_recipients = create_recipient_list(
+        event['Records'][0]['ses']['mail']['destination'])
+    print(f"new recipients: {new_recipients}")
+
     # Create the message.
-    message = create_message(file_dict)
+    message = create_message(file_dict, new_recipients)
 
     # Send the email and print the result.
     result = send_email(message)
